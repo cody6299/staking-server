@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.x.dao.db.staking.ChainUserDAO">
+    <resultMap id="BaseResultMap" type="com.x.dao.po.staking.ChainUserEntity">
+        <id column="f_chain_id" jdbcType="BIGINT" property="chainId"/>
+        <result column="f_chain_address" jdbcType="VARCHAR" property="chainAddress"/>
+        <result column="f_shares" jdbcType="DECIMAL" property="shares"/>
+        <result column="f_reward" jdbcType="DECIMAL" property="reward"/>
+        <result column="f_debt" jdbcType="DECIMAL" property="debt"/>
+        <result column="f_create_at" jdbcType="TIMESTAMP" property="createAt"/>
+        <result column="f_update_at" jdbcType="TIMESTAMP" property="updateAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        f_chain_id,
+        f_chain_address,
+        f_shares,
+        f_reward,
+        f_debt,
+        f_create_at,
+        f_update_at
+    </sql>
+
+    <insert id="save" parameterType="com.x.dao.po.staking.ChainUserEntity">
+        insert into t_chain_user
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.chainId != null">f_chain_id,</if>
+                <if test="entity.chainAddress != null">f_chain_address,</if>
+                <if test="entity.shares != null">f_shares,</if>
+                <if test="entity.reward != null">f_reward,</if>
+                <if test="entity.debt != null">f_debt,</if>
+                <if test="entity.createAt != null">f_create_at,</if>
+                <if test="entity.updateAt != null">f_update_at,</if>
+            </trim>
+        values
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.chainId != null">#{entity.chainId,jdbcType=BIGINT},</if>
+                <if test="entity.chainAddress != null">#{entity.chainAddress,jdbcType=VARCHAR},</if>
+                <if test="entity.shares != null">#{entity.shares,jdbcType=DECIMAL},</if>
+                <if test="entity.reward != null">#{entity.reward,jdbcType=DECIMAL},</if>
+                <if test="entity.debt != null">#{entity.debt,jdbcType=DECIMAL},</if>
+                <if test="entity.createAt != null">#{entity.createAt,jdbcType=TIMESTAMP},</if>
+                <if test="entity.updateAt != null">#{entity.updateAt,jdbcType=TIMESTAMP},</if>
+            </trim>
+        on duplicate key update
+            f_shares = values(f_shares),
+            f_reward = values(f_reward),
+            f_debt = values(f_debt)
+    </insert>
+
+    <insert id="saveBulk" parameterType="com.x.dao.po.staking.ChainUserEntity">
+        insert into t_chain_user(
+            f_chain_id,
+            f_chain_address,
+            f_shares,
+            f_reward,
+            f_debt
+        ) values
+        <foreach collection="entities" item="entity" separator=",">
+            (
+                #{entity.chainId,jdbcType=BIGINT},
+                #{entity.chainAddress,jdbcType=VARCHAR},
+                #{entity.shares,jdbcType=DECIMAL},
+                #{entity.reward,jdbcType=DECIMAL},
+                #{entity.debt,jdbcType=DECIMAL}
+            )
+        </foreach>
+        on duplicate key update
+            f_shares = values(f_shares),
+            f_reward = values(f_reward),
+            f_debt = values(f_debt)
+    </insert>
+
+    <select id="selectByChainAndAddresses" resultMap="BaseResultMap">
+        select 
+            <include refid="Base_Column_List"/>
+        from
+            t_chain_user
+        where
+            f_chain_id = #{chainId,jdbcType=BIGINT}
+        and
+            f_chain_address
+        in
+            <foreach collection="addresses" item="address" separator="," open="(" close=")">
+                #{address,jdbcType=VARCHAR}
+            </foreach>
+    </select>
+
+    <select id="selectByChain" resultMap="BaseResultMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            t_chain_user
+        where
+            f_chain_id = #{chainId,jdbcType=VARCHAR}
+        order by
+            f_chain_address
+        limit
+            #{from},#{size}
+    </select>
+
+</mapper>

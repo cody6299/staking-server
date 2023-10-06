@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.x.dao.db.staking.BindRelationDAO">
+    <resultMap id="BaseResultMap" type="com.x.dao.po.staking.BindRelationEntity">
+        <result column="f_chain_id" jdbcType="BIGINT" property="chainId"/>
+        <result column="f_chain_address" jdbcType="VARCHAR" property="chainAddress"/>
+        <result column="f_bind_address" jdbcType="VARCHAR" property="bindAddress"/>
+        <result column="f_sign_data" jdbcType="DECIMAL" property="signData"/>
+        <result column="f_create_at" jdbcType="TIMESTAMP" property="createAt"/>
+        <result column="f_update_at" jdbcType="TIMESTAMP" property="updateAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        f_chain_id,
+        f_chain_address,
+        f_bind_address,
+        f_sign_data,
+        f_create_at,
+        f_update_at
+    </sql>
+
+    <insert id="save" parameterType="com.x.dao.po.staking.BindRelationEntity">
+        insert into t_bind_relation
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.chainId != null">f_chain_id,</if>
+                <if test="entity.chainAddress != null">f_chain_address,</if>
+                <if test="entity.bindAddress != null">f_bind_address,</if>
+                <if test="entity.signData != null">f_sign_data,</if>
+                <if test="entity.createAt != null">f_create_at,</if>
+                <if test="entity.updateAt != null">f_update_at,</if>
+            </trim>
+        values
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.chainId != null">#{entity.chainId,jdbcType=BIGINT},</if>
+                <if test="entity.chainAddress != null">#{entity.chainAddress,jdbcType=VARCHAR},</if>
+                <if test="entity.bindAddress != null">#{entity.bindAddress,jdbcType=DECIMAL},</if>
+                <if test="entity.signData != null">#{entity.signData,jdbcType=DECIMAL},</if>
+                <if test="entity.createAt != null">#{entity.createAt,jdbcType=TIMESTAMP},</if>
+                <if test="entity.updateAt != null">#{entity.updateAt,jdbcType=TIMESTAMP},</if>
+            </trim>
+    </insert>
+
+    <select id="selectByChainAndAddresses" resultMap="BaseResultMap">
+        select 
+            <include refid="Base_Column_List"/>
+        from
+            t_bind_relation
+        where
+            f_chain_id = #{chainId,jdbcType=BIGINT}
+        and
+            f_chain_address
+        in
+            <foreach collection="addresses" item="address" separator="," open="(" close=")">
+                #{address,jdbcType=VARCHAR}
+            </foreach>
+    </select>
+
+    <update id="update">
+        update
+            t_bind_relation
+        set
+            f_bind_address = #{entity.bindAddress,jdbcType=VARCHAR},
+            f_sign_data = #{entity.signData,jdbcType=VARCHAR}
+        where
+            f_chain_id = #{entity.chainId,jdbcType=BIGINT}
+        and
+            f_chain_address = #{entity.chainAddress,jdbcType=VARCHAR}
+        and
+            f_bind_address = #{oldBindAddress,jdbcType=VARCHAR}
+    </update>
+</mapper>

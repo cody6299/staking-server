@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.x.dao.db.staking.VoteRecordProcessDAO">
+    <resultMap id="BaseResultMap" type="com.x.dao.po.staking.VoteRecordProcessEntity">
+        <id column="f_chain_id" jdbcType="BIGINT" property="chainId"/>
+        <result column="f_block_num" jdbcType="BIGINT" property="blockNum"/>
+        <result column="f_create_at" jdbcType="TIMESTAMP" property="createAt"/>
+        <result column="f_update_at" jdbcType="TIMESTAMP" property="updateAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        f_chain_id,
+        f_block_num,
+        f_create_at,
+        f_update_at
+    </sql>
+
+    <insert id="save" parameterType="com.x.dao.po.staking.VoteRecordProcessEntity">
+        insert into t_vote_record_process
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.chainId != null">f_chain_id,</if>
+                <if test="entity.blockNum != null">f_block_num,</if>
+                <if test="entity.createAt != null">f_create_at,</if>
+                <if test="entity.updateAt != null">f_update_at,</if>
+            </trim>
+        values
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.chainId != null">#{entity.chainId,jdbcType=BIGINT},</if>
+                <if test="entity.blockNum != null">#{entity.blockNum,jdbcType=BIGINT},</if>
+                <if test="entity.createAt != null">#{entity.createAt,jdbcType=TIMESTAMP},</if>
+                <if test="entity.updateAt != null">#{entity.updateAt,jdbcType=TIMESTAMP},</if>
+            </trim>
+        on duplicate key update
+            f_block_num = values(f_block_num)
+    </insert>
+
+    <select id="selectByChain" resultMap="BaseResultMap">
+        select 
+            <include refid="Base_Column_List"/>
+        from
+            t_vote_record_process
+        where
+            f_chain_id = #{chainId,jdbcType=BIGINT}
+    </select>
+
+</mapper>

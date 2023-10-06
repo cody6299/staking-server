@@ -1,0 +1,103 @@
+server:
+  port: 8990
+
+http:
+  multipart:
+    max-file-size: 30Mb
+    max-request-size: 30Mb
+
+spring:
+    datasource:
+      druid:
+        # 主库数据源
+        master:
+          type: com.alibaba.druid.pool.DruidDataSource
+          url: jdbc:mysql://172.18.12.26:3306/hbp_pow?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&characterSetResults=utf8&useSSL=false
+          username: huobi_pool_usrc
+          password: huobipool@2019
+          driver-class-name: com.mysql.jdbc.Driver
+          initial-size: 2
+          max-active: 100
+          min-idle: 2
+          max-wait: 60000
+          pool-prepared-statements: true
+          #        max-pool-prepared-statement-per-connection-size:
+          #        max-open-prepared-statements: true #和上面的等价
+          validation-query: SELECT 'X'
+          #        validation-query-timeout:
+          #        test-on-borrow: false
+          #        test-on-return: false
+          test-while-idle: true
+          time-between-eviction-runs-millis: 60000
+          min-evictable-idle-time-millis: 100000
+          #        max-evictable-idle-time-millis: 100000
+          filters: stat,wall #配置多个英文逗号分隔
+        # 从库数据源
+        slave:
+          type: com.alibaba.druid.pool.DruidDataSource
+          url: jdbc:mysql://172.18.12.26:3306/hbp_pow?useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&characterSetResults=utf8&useSSL=false
+          username: huobi_pool_usrc
+          password: huobipool@2019
+          driver-class-name: com.mysql.jdbc.Driver
+          initial-size: 2
+          max-active: 100
+          min-idle: 2
+          max-wait: 60000
+          pool-prepared-statements: true
+          #        max-pool-prepared-statement-per-connection-size:
+          #        max-open-prepared-statements: true #和上面的等价
+          validation-query: SELECT 'X'
+          #        validation-query-timeout:
+          #        test-on-borrow: false
+          #        test-on-return: false
+          test-while-idle: true
+          time-between-eviction-runs-millis: 60000
+          min-evictable-idle-time-millis: 100000
+          #        max-evictable-idle-time-millis: 100000
+          filters: stat,wall #配置多个英文逗号分隔
+        # 配置StatFilter
+        filter:
+          stat:
+            enabled: true
+            #          db-type: h2
+            log-slow-sql: true
+            slow-sql-millis: 2000
+          # 配置WallFilter
+          wall:
+            enabled:  true
+            #          db-type: h2
+            delete-allow: false
+            config:
+              drop-table-allow: false
+
+    data:
+      mongodb:
+        host: 172.18.12.28
+        port: 27017
+        database: speed
+
+#logging:
+#    level:
+#        com.huobi.pool.skeleton.dao.db : debug
+
+bitmain:
+    appid: 4boLeMlAXEAmsiXZZ59LaJBnpqsxIeVC1ObRqjxuANZ6LXe6HFuodPjEPB3nsaUt
+    appname: huobipool
+    secretkey: 935e002c313386f7caac2213ffce5ee9fd53d7735ef0cb075a601776ec9617c7
+
+bittop:
+    secretkey: btctop_raw_api
+
+redis_0:
+  name: 0
+  alias_name: DEMO_NODE_0
+  max_total: 100
+  max_idle: 10
+  max_waitmillis: 30000
+  test_onborrow: true
+  host: redis.test-4.sinnet.huobiidc.com
+  port: 6379
+
+logging:
+    level:
+        com.huobi.pool.pow.dao : debug

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.x.dao.db.staking.UserDailyPaymentDAO">
+    <resultMap id="BaseResultMap" type="com.x.dao.po.staking.UserDailyPaymentEntity">
+        <id column="f_id" jdbcType="BIGINT" property="id"/>
+        <result column="f_chain_id" jdbcType="BIGINT" property="chainId"/>
+        <result column="f_chain_address" jdbcType="VARCHAR" property="chainAddress"/>
+        <result column="f_date" jdbcType="DATE" property="date"/>
+        <result column="f_total_reward" jdbcType="DECIMAL" property="totalReward"/>
+        <result column="f_daily_reward" jdbcType="DECIMAL" property="dailyReward"/>
+        <result column="f_remain_release" jdbcType="DECIMAL" property="remainRelease"/>
+        <result column="f_daily_release" jdbcType="DECIMAL" property="dailyRelease"/>
+        <result column="f_create_at" jdbcType="TIMESTAMP" property="createAt"/>
+        <result column="f_update_at" jdbcType="TIMESTAMP" property="updateAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        f_id,
+        f_chain_id,
+        f_chain_address,
+        f_date,
+        f_total_reward,
+        f_daily_reward,
+        f_remain_release,
+        f_daily_release,
+        f_create_at,
+        f_update_at
+    </sql>
+
+    <insert id="save" parameterType="com.x.dao.po.staking.UserDailyPaymentEntity">
+        insert into t_user_daily_payment
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.chainId != null">f_chain_id,</if>
+                <if test="entity.chainAddress != null">f_chain_address,</if>
+                <if test="entity.date != null">f_date,</if>
+                <if test="entity.totalReward != null">f_total_reward,</if>
+                <if test="entity.dailyReward != null">f_daily_reward,</if>
+                <if test="entity.remainRelease != null">f_remain_release,</if>
+                <if test="entity.dailyRelease != null">f_daily_release,</if>
+                <if test="entity.createAt != null">f_create_at,</if>
+                <if test="entity.updateAt != null">f_update_at,</if>
+            </trim>
+        values
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.chainId != null">#{entity.chainId,jdbcType=BIGINT},</if>
+                <if test="entity.chainAddress != null">#{entity.chainAddress,jdbcType=VARCHAR},</if>
+                <if test="entity.date != null">#{entity.date,jdbcType=DATE},</if>
+                <if test="entity.totalReward != null">#{entity.totalReward,jdbcType=DECIMAL},</if>
+                <if test="entity.dailyReward != null">#{entity.dailyReward,jdbcType=DECIMAL},</if>
+                <if test="entity.remainRelease != null">#{entity.remainRelease,jdbcType=DECIMAL},</if>
+                <if test="entity.dailyRelease != null">#{entity.dailyRelease,jdbcType=DECIMAL},</if>
+                <if test="entity.createAt != null">#{entity.createAt,jdbcType=TIMESTAMP},</if>
+                <if test="entity.updateAt != null">#{entity.updateAt,jdbcType=TIMESTAMP},</if>
+            </trim>
+    </insert>
+
+    <insert id="saveBulk" parameterType="com.x.dao.po.staking.UserDailyPaymentEntity">
+        insert into t_user_daily_payment(
+            f_chain_id,
+            f_chain_address,
+            f_date,
+            f_total_reward,
+            f_daily_reward,
+            f_remain_release,
+            f_daily_release
+        ) values
+        <foreach collection="entities" item="entity" separator=",">
+            (
+                #{entity.chainId,jdbcType=BIGINT},
+                #{entity.chainAddress,jdbcType=VARCHAR},
+                #{entity.date,jdbcType=DATE},
+                #{entity.totalReward,jdbcType=DECIMAL},
+                #{entity.dailyReward,jdbcType=DECIMAL},
+                #{entity.remainRelease,jdbcType=DECIMAL},
+                #{entity.dailyRelease,jdbcType=DECIMAL}
+            )
+        </foreach>
+        on duplicate key update
+            f_remain_release = values(f_remain_release)
+    </insert>
+
+    <select id="selectByChainAndDateAndAddresses" resultMap="BaseResultMap">
+        select 
+            <include refid="Base_Column_List"/>
+        from
+            t_user_daily_payment
+        where
+            f_chain_id = #{chainId,jdbcType=BIGINT}
+        and
+            f_date = #{date,jdbcType=DATE}
+        and
+            f_chain_address
+        in
+            <foreach collection="addresses" item="address" separator="," open="(" close=")">
+                #{address,jdbcType=VARCHAR}
+            </foreach>
+    </select>
+
+    <select id="selectRemainedByChain" resultMap="BaseResultMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            t_user_daily_payment
+        where
+            f_chain_id = #{chainId,jdbcType=BIGINT}
+        and
+            f_remain_release > 0
+        order by
+            f_id
+        limit
+            #{from},#{size}
+    </select>
+
+</mapper>

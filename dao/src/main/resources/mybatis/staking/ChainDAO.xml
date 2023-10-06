@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.x.dao.db.staking.ChainDAO">
+    <resultMap id="BaseResultMap" type="com.x.dao.po.staking.ChainEntity">
+        <id column="f_id" jdbcType="BIGINT" property="id"/>
+        <result column="f_chain" jdbcType="VARCHAR" property="chain"/>
+        <result column="f_decimals" jdbcType="INTEGER" property="decimals"/>
+        <result column="f_reward_per_seconds" jdbcType="DECIMAL" property="rewardPerSeconds"/>
+        <result column="f_total_shares" jdbcType="DECIMAL" property="totalShares"/>
+        <result column="f_acc_per_share" jdbcType="DECIMAL" property="accPerShare"/>
+        <result column="f_last_update" jdbcType="BIGINT" property="lastUpdate"/>
+        <result column="f_create_at" jdbcType="TIMESTAMP" property="createAt"/>
+        <result column="f_update_at" jdbcType="TIMESTAMP" property="updateAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        f_id,
+        f_chain,
+        f_decimals,
+        f_reward_per_seconds,
+        f_total_shares,
+        f_acc_per_share,
+        f_last_update,
+        f_create_at,
+        f_update_at
+    </sql>
+
+    <insert id="save" keyProperty="entity.id" useGeneratedKeys="true" parameterType="com.x.dao.po.staking.ChainEntity">
+        insert into t_chain
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.id != null">f_id,</if>
+                <if test="entity.chain != null">f_chain,</if>
+                <if test="entity.decimals != null">f_decimals,</if>
+                <if test="entity.rewardPerSeconds != null">f_reward_per_seconds,</if>
+                <if test="entity.totalShares != null">f_total_shares,</if>
+                <if test="entity.accPerShare != null">f_acc_per_share,</if>
+                <if test="entity.lastUpdate != null">f_last_update,</if>
+                <if test="entity.createAt != null">f_create_at,</if>
+                <if test="entity.updateAt != null">f_update_at,</if>
+            </trim>
+        values
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.id != null">#{entity.id,jdbcType=BIGINT},</if>
+                <if test="entity.chain != null">#{entity.chain,jdbcType=VARCHAR},</if>
+                <if test="entity.decimals != null">#{entity.decimals,jdbcType=INTEGER},</if>
+                <if test="entity.rewardPerSeconds != null">#{entity.rewardPerSeconds,jdbcType=DECIMAL},</if>
+                <if test="entity.totalShares != null">#{entity.totalShares,jdbcType=DECIMAL},</if>
+                <if test="entity.accPerShare != null">#{entity.accPerShare,jdbcType=DECIMAL},</if>
+                <if test="entity.lastUpdate != null">#{entity.lastUpdate,jdbcType=BIGINT},</if>
+                <if test="entity.createAt != null">#{entity.createAt,jdbcType=TIMESTAMP},</if>
+                <if test="entity.updateAt != null">#{entity.updateAt,jdbcType=TIMESTAMP},</if>
+            </trim>
+        on duplicate key update
+            f_reward_per_seconds = values(f_reward_per_seconds),
+            f_total_shares = values(f_total_shares),
+            f_acc_per_share = values(f_acc_per_share),
+            f_last_update = values(f_last_update)
+    </insert>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select 
+            <include refid="Base_Column_List"/>
+        from
+            t_chain
+    </select>
+
+    <select id="selectByChains" resultMap="BaseResultMap">
+        select 
+            <include refid="Base_Column_List"/>
+        from
+            t_chain
+        where
+            f_chain
+        in
+            <foreach collection="chains" item="chain" separator="," open="(" close=")">
+                #{chain,jdbcType=VARCHAR}
+            </foreach>
+        order by
+            f_id
+    </select>
+
+    <select id="selectByIds" resultMap="BaseResultMap">
+        select 
+            <include refid="Base_Column_List"/>
+        from
+            t_chain
+        where
+            f_id
+        in
+            <foreach collection="ids" item="id" separator="," open="(" close=")">
+                #{id,jdbcType=BIGINT}
+            </foreach>
+        order by
+            f_id
+    </select>
+</mapper>

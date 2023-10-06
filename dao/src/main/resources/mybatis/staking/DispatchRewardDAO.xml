@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.x.dao.db.staking.DispatchRewardDAO">
+    <resultMap id="BaseResultMap" type="com.x.dao.po.staking.DispatchRewardEntity">
+        <result column="f_address" jdbcType="VARCHAR" property="address"/>
+        <result column="f_date" jdbcType="DATE" property="date"/>
+        <result column="f_total_amount" jdbcType="DECIMAL" property="totalAmount"/>
+        <result column="f_hash" jdbcType="VARCHAR" property="hash"/>
+        <result column="f_create_at" jdbcType="TIMESTAMP" property="createAt"/>
+        <result column="f_update_at" jdbcType="TIMESTAMP" property="updateAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        f_address,
+        f_date,
+        f_total_amount,
+        f_hash,
+        f_create_at,
+        f_update_at
+    </sql>
+
+    <insert id="save" parameterType="com.x.dao.po.staking.DispatchRewardEntity">
+        insert into t_dispatch_reward
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.address != null">f_address,</if>
+                <if test="entity.date != null">f_date,</if>
+                <if test="entity.totalAmount != null">f_total_amount,</if>
+                <if test="entity.hash != null">f_hash,</if>
+                <if test="entity.createAt != null">f_create_at,</if>
+                <if test="entity.updateAt != null">f_update_at,</if>
+            </trim>
+        values
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.address != null">#{entity.address,jdbcType=VARCHAR},</if>
+                <if test="entity.date != null">#{entity.date,jdbcType=DATE},</if>
+                <if test="entity.totalAmount != null">#{entity.totalAmount,jdbcType=DECIMAL},</if>
+                <if test="entity.hash != null">#{entity.hash,jdbcType=VARCHAR},</if>
+                <if test="entity.createAt != null">#{entity.createAt,jdbcType=TIMESTAMP},</if>
+                <if test="entity.updateAt != null">#{entity.updateAt,jdbcType=TIMESTAMP},</if>
+            </trim>
+    </insert>
+
+    <insert id="saveBulk" parameterType="com.x.dao.po.staking.DispatchRewardEntity">
+        insert into t_dispatch_reward(
+            f_address,
+            f_date,
+            f_total_amount,
+            f_hash
+        ) values
+        <foreach collection="entities" item="entity" separator=",">
+            (
+                #{entity.address,jdbcType=VARCHAR},
+                #{entity.date,jdbcType=DATE},
+                #{entity.totalAmount,jdbcType=DECIMAL},
+                #{entity.hash,jdbcType=VARCHAR}
+            )
+        </foreach>
+        on duplicate key update
+            f_total_amount = f_total_amount + values(f_total_amount);
+    </insert>
+
+    <insert id="updateHash" parameterType="com.x.dao.po.staking.DispatchRewardEntity">
+        insert into t_dispatch_reward(
+            f_address,
+            f_date,
+            f_total_amount,
+            f_hash
+        ) values
+        <foreach collection="entities" item="entity" separator=",">
+            (
+                #{entity.address,jdbcType=VARCHAR},
+                #{entity.date,jdbcType=DATE},
+                #{entity.totalAmount,jdbcType=DECIMAL},
+                #{entity.hash,jdbcType=VARCHAR}
+            )
+        </foreach>
+        on duplicate key update
+            f_hash = values(f_hash)
+    </insert>
+
+    <select id="selectByDate" resultMap="BaseResultMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            t_dispatch_reward
+        where
+            f_date = #{date,jdbcType=DATE}
+        order by
+            f_address
+        limit
+            #{from},#{size}
+    </select>
+
+    <select id="selectByAddressesAndDate" resultMap="BaseResultMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            t_dispatch_reward
+        where
+            f_date = #{date,jdbcType=DATE}
+        and
+            f_address
+        in
+            <foreach collection="addresses" item="address" separator="," open="(" close=")">
+                #{address,jdbcType=VARCHAR}
+            </foreach>
+    </select>
+
+</mapper>

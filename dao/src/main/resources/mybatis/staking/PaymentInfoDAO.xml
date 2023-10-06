@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.x.dao.db.staking.PaymentInfoDAO">
+    <resultMap id="BaseResultMap" type="com.x.dao.po.staking.PaymentInfoEntity">
+        <result column="f_date" jdbcType="DATE" property="date"/>
+        <result column="f_start_seconds" jdbcType="BIGINT" property="startSeconds"/>
+        <result column="f_end_seconds" jdbcType="BIGINT" property="endSeconds"/>
+        <result column="f_current_record_id" jdbcType="BIGINT" property="currentRecordId"/>
+        <result column="f_dispatch_reward" jdbcType="DECIMAL" property="dispatchReward"/>
+        <result column="f_root_hash" jdbcType="VARCHAR" property="rootHash"/>
+        <result column="f_status" jdbcType="INTEGER" property="status"/>
+        <result column="f_create_at" jdbcType="TIMESTAMP" property="createAt"/>
+        <result column="f_update_at" jdbcType="TIMESTAMP" property="updateAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        f_date,
+        f_start_seconds,
+        f_end_seconds,
+        f_current_record_id,
+        f_dispatch_reward,
+        f_root_hash,
+        f_status,
+        f_create_at,
+        f_update_at
+    </sql>
+
+    <insert id="save" parameterType="com.x.dao.po.staking.PaymentInfoEntity">
+        insert into t_payment_info
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.date != null">f_date,</if>
+                <if test="entity.startSeconds != null">f_start_seconds,</if>
+                <if test="entity.endSeconds != null">f_end_seconds,</if>
+                <if test="entity.currentRecordId != null">f_current_record_id,</if>
+                <if test="entity.dispatchReward != null">f_dispatch_reward,</if>
+                <if test="entity.rootHash != null">f_root_hash,</if>
+                <if test="entity.status != null">f_status,</if>
+                <if test="entity.createAt != null">f_create_at,</if>
+                <if test="entity.updateAt != null">f_update_at,</if>
+            </trim>
+        values
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.date != null">#{entity.date,jdbcType=DATE},</if>
+                <if test="entity.startSeconds != null">#{entity.startSeconds,jdbcType=BIGINT},</if>
+                <if test="entity.endSeconds != null">#{entity.endSeconds,jdbcType=BIGINT},</if>
+                <if test="entity.currentRecordId != null">#{entity.currentRecordId,jdbcType=BIGINT},</if>
+                <if test="entity.dispatchReward != null">#{entity.dispatchReward,jdbcType=DECIMAL},</if>
+                <if test="entity.rootHash != null">#{entity.rootHash,jdbcType=VARCHAR},</if>
+                <if test="entity.status != null">#{entity.status,jdbcType=INTEGER},</if>
+                <if test="entity.createAt != null">#{entity.createAt,jdbcType=TIMESTAMP},</if>
+                <if test="entity.updateAt != null">#{entity.updateAt,jdbcType=TIMESTAMP},</if>
+            </trim>
+    </insert>
+
+    <select id="selectByDate" resultMap="BaseResultMap">
+        select 
+            <include refid="Base_Column_List"/>
+        from
+            t_payment_info
+        where
+            f_date = #{date,jdbcType=DATE}
+    </select>
+
+    <update id="update">
+        update
+            t_payment_info
+        set
+            f_current_record_id = #{entity.currentRecordId,jdbcType=BIGINT},
+            f_dispatch_reward = #{entity.dispatchReward,jdbcType=BIGINT}
+        where
+            f_date = #{entity.date,jdbcType=DATE}
+        and
+            f_status = #{entity.status,jdbcType=INTEGER}
+    </update>
+
+
+    <update id="updateRootHash">
+        update
+            t_payment_info
+        set
+            f_root_hash = #{rootHash,jdbcType=VARCHAR}
+        where
+            f_date = #{date,jdbcType=DATE}
+        and
+            f_status = 0
+    </update>
+
+    <update id="updateStatus">
+        update
+            t_payment_info
+        set
+            f_status = #{newStatus,jdbcType=INTEGER}
+        where
+            f_date = #{date,jdbcType=DATE}
+        and
+            f_status = #{oldStatus,jdbcType=INTEGER}
+    </update>
+
+    <update id="reset">
+        update
+            t_payment_info
+        set
+            f_current_record_id = 0,
+            f_total_vote_num = 0,
+            f_total_user_num = 0,
+            f_status = 0
+        where
+            f_date = #{date,jdbcType=DATE}
+        and
+            f_status = #{oldStatus,jdbcType=INTEGER}
+    </update>
+
+</mapper>

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.x.dao.db.staking.BuildTransactionDAO">
+    <resultMap id="BaseResultMap" type="com.x.dao.po.staking.BuildTransactionEntity">
+        <result column="f_id" jdbcType="BIGINT" property="id"/>
+        <result column="f_from" jdbcType="VARCHAR" property="from"/>
+        <result column="f_to" jdbcType="VARCHAR" property="to"/>
+        <result column="f_value" jdbcType="DECIMAL" property="value"/>
+        <result column="f_input" jdbcType="VARCHAR" property="input"/>
+        <result column="f_input_desc" jdbcType="VARCHAR" property="inputDesc"/>
+        <result column="f_raw_transaction" jdbcType="VARCHAR" property="rawTransaction"/>
+        <result column="f_status" jdbcType="INTEGER" property="status"/>
+        <result column="f_hash" jdbcType="VARCHAR" property="hash"/>
+        <result column="f_create_at" jdbcType="TIMESTAMP" property="createAt"/>
+        <result column="f_update_at" jdbcType="TIMESTAMP" property="updateAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        f_id,
+        f_from,
+        f_to,
+        f_value,
+        f_input,
+        f_input_desc,
+        f_raw_transaction,
+        f_status,
+        f_hash,
+        f_create_at,
+        f_update_at
+    </sql>
+
+    <insert id="save" parameterType="com.x.dao.po.staking.BuildTransactionEntity">
+        insert into t_build_transaction
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.id != null">f_id,</if>
+                <if test="entity.from != null">f_from,</if>
+                <if test="entity.to != null">f_to,</if>
+                <if test="entity.value != null">f_value,</if>
+                <if test="entity.input != null">f_input,</if>
+                <if test="entity.inputDesc != null">f_input_desc,</if>
+                <if test="entity.rawTransaction != null">f_raw_transaction,</if>
+                <if test="entity.status != null">f_raw_status,</if>
+                <if test="entity.hash != null">f_hash,</if>
+                <if test="entity.createAt != null">f_create_at,</if>
+                <if test="entity.updateAt != null">f_update_at,</if>
+            </trim>
+        values
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.id != null">#{entity.id,jdbcType=BIGINT},</if>
+                <if test="entity.from != null">#{entity.from,jdbcType=VARCHAR},</if>
+                <if test="entity.to != null">#{entity.to,jdbcType=VARCHAR},</if>
+                <if test="entity.value != null">#{entity.value,jdbcType=DECIMAL},</if>
+                <if test="entity.input != null">#{entity.input,jdbcType=VARCHAR},</if>
+                <if test="entity.inputDescs != null">#{entity.inputDesc,jdbcType=DECIMAL},</if>
+                <if test="entity.rawTransaction != null">#{entity.rawTransaction,jdbcType=VARCHAR},</if>
+                <if test="entity.status != null">#{entity.status,jdbcType=INTEGER},</if>
+                <if test="entity.hash != null">#{entity.hash,jdbcType=VARCHAR},</if>
+                <if test="entity.createAt != null">#{entity.createAt,jdbcType=TIMESTAMP},</if>
+                <if test="entity.updateAt != null">#{entity.updateAt,jdbcType=TIMESTAMP},</if>
+            </trim>
+    </insert>
+
+</mapper>

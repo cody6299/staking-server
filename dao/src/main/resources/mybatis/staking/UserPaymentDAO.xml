@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.x.dao.db.staking.UserPaymentDAO">
+    <resultMap id="BaseResultMap" type="com.x.dao.po.staking.UserPaymentEntity">
+        <result column="f_chain_id" jdbcType="BIGINT" property="chainId"/>
+        <result column="f_chain_address" jdbcType="VARCHAR" property="chainAddress"/>
+        <result column="f_total_reward" jdbcType="DECIMAL" property="totalReward"/>
+        <result column="f_create_at" jdbcType="TIMESTAMP" property="createAt"/>
+        <result column="f_update_at" jdbcType="TIMESTAMP" property="updateAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        f_chain_id,
+        f_chain_address,
+        f_total_reward,
+        f_create_at,
+        f_update_at
+    </sql>
+
+    <insert id="save" parameterType="com.x.dao.po.staking.UserPaymentEntity">
+        insert into t_user_payment
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.chainId != null">f_chain_id,</if>
+                <if test="entity.chainAddress != null">f_chain_address,</if>
+                <if test="entity.totalReward != null">f_total_reward,</if>
+                <if test="entity.createAt != null">f_create_at,</if>
+                <if test="entity.updateAt != null">f_update_at,</if>
+            </trim>
+        values
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.chainId != null">#{entity.chainId,jdbcType=BIGINT},</if>
+                <if test="entity.chainAddress != null">#{entity.chainAddress,jdbcType=VARCHAR},</if>
+                <if test="entity.totalReward != null">#{entity.totalReward,jdbcType=DECIMAL},</if>
+                <if test="entity.createAt != null">#{entity.createAt,jdbcType=TIMESTAMP},</if>
+                <if test="entity.updateAt != null">#{entity.updateAt,jdbcType=TIMESTAMP},</if>
+            </trim>
+    </insert>
+
+    <insert id="saveBulk" parameterType="com.x.dao.po.staking.UserPaymentEntity">
+        insert into t_user_payment(
+            f_chain_id,
+            f_chain_address,
+            f_total_reward
+        ) values
+        <foreach collection="entities" item="entity" separator=",">
+            (
+                #{entity.chainId,jdbcType=BIGINT},
+                #{entity.chainAddress,jdbcType=VARCHAR},
+                #{entity.totalReward,jdbcType=DECIMAL}
+            )
+        </foreach>
+        on duplicate key update
+            f_total_reward = values(f_total_reward)
+    </insert>
+
+    <select id="selectByChainAndAddresses" resultMap="BaseResultMap">
+        select 
+            <include refid="Base_Column_List"/>
+        from
+            t_user_payment
+        where
+            f_chain_id = #{chainId,jdbcType=BIGINT}
+        and
+            f_chain_address
+        in
+            <foreach collection="addresses" item="address" separator="," open="(" close=")">
+                #{address,jdbcType=VARCHAR}
+            </foreach>
+    </select>
+
+</mapper>

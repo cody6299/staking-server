@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.x.dao.db.staking.VoteRecordDAO">
+    <resultMap id="BaseResultMap" type="com.x.dao.po.staking.VoteRecordEntity">
+        <id column="f_id" jdbcType="BIGINT" property="id"/>
+        <result column="f_chain_id" jdbcType="BIGINT" property="chainId"/>
+        <result column="f_chain_address" jdbcType="VARCHAR" property="chainAddress"/>
+        <result column="f_vote_num" jdbcType="DECIMAL" property="voteNum"/>
+        <result column="f_block_num" jdbcType="BIGINT" property="blockNum"/>
+        <result column="f_tx_hash" jdbcType="VARCHAR" property="txHash"/>
+        <result column="f_vote_to" jdbcType="VARCHAR" property="voteTo"/>
+        <result column="f_vote_at" jdbcType="BIGINT" property="voteAt"/>
+        <result column="f_create_at" jdbcType="TIMESTAMP" property="createAt"/>
+        <result column="f_update_at" jdbcType="TIMESTAMP" property="updateAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        f_id,
+        f_chain_id,
+        f_chain_address,
+        f_vote_num,
+        f_block_num,
+        f_tx_hash,
+        f_vote_to,
+        f_vote_at,
+        f_create_at,
+        f_update_at
+    </sql>
+
+    <insert id="save" keyProperty="entity.id" useGeneratedKeys="true" parameterType="com.x.dao.po.staking.VoteRecordEntity">
+        insert into t_vote_record
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.id != null">f_id,</if>
+                <if test="entity.chainId != null">f_chain_id,</if>
+                <if test="entity.chainAddress != null">f_chain_address,</if>
+                <if test="entity.voteNum != null">f_vote_num,</if>
+                <if test="entity.blockNum != null">f_block_num,</if>
+                <if test="entity.txHash != null">f_tx_hash,</if>
+                <if test="entity.voteTo != null">f_vote_to,</if>
+                <if test="entity.voteAt != null">f_vote_at,</if>
+                <if test="entity.createAt != null">f_create_at,</if>
+                <if test="entity.updateAt != null">f_update_at,</if>
+            </trim>
+        values
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.id != null">#{entity.id,jdbcType=BIGINT},</if>
+                <if test="entity.chainId != null">#{entity.chainId,jdbcType=BIGINT},</if>
+                <if test="entity.chainAddress != null">#{entity.chainAddress,jdbcType=VARCHAR},</if>
+                <if test="entity.voteNum != null">#{entity.voteNum,jdbcType=DECIMAL},</if>
+                <if test="entity.blockNum != null">#{entity.blockNum,jdbcType=BIGINT},</if>
+                <if test="entity.txHash != null">#{entity.txHash,jdbcType=VARCHAR},</if>
+                <if test="entity.voteTo != null">#{entity.voteTo,jdbcType=VARCHAR},</if>
+                <if test="entity.voteAt != null">#{entity.voteAt,jdbcType=BIGINT},</if>
+                <if test="entity.createAt != null">#{entity.createAt,jdbcType=TIMESTAMP},</if>
+                <if test="entity.updateAt != null">#{entity.updateAt,jdbcType=TIMESTAMP},</if>
+            </trim>
+        on duplicate key update
+            f_vote_num = values(f_vote_num),
+            f_block_num = values(f_block_num)
+    </insert>
+
+    <insert id="saveBulk" keyProperty="entity.id" useGeneratedKeys="true" parameterType="com.x.dao.po.staking.VoteRecordEntity">
+        insert into t_vote_record(
+            f_chain_id,
+            f_chain_address,
+            f_vote_num,
+            f_block_num,
+            f_tx_hash,
+            f_vote_to,
+            f_vote_at
+        ) values
+        <foreach collection="entities" item="entity" separator=",">
+            (
+                #{entity.chainId,jdbcType=BIGINT},
+                #{entity.chainAddress,jdbcType=VARCHAR},
+                #{entity.voteNum,jdbcType=DECIMAL},
+                #{entity.blockNum,jdbcType=BIGINT},
+                #{entity.txHash,jdbcType=VARCHAR},
+                #{entity.voteTo,jdbcType=VARCHAR},
+                #{entity.voteAt,jdbcType=BIGINT}
+            )
+        </foreach>
+        on duplicate key update
+            f_vote_num = values(f_vote_num),
+            f_block_num = values(f_block_num)
+    </insert>
+
+    <select id="selectByChainAndBlockAndVoteAt" resultMap="BaseResultMap">
+        select 
+            <include refid="Base_Column_List"/>
+        from
+            t_vote_record
+        where
+            f_chain_id = #{chainId,jdbcType=BIGINT}
+        and
+            f_block_num &lt;= #{endBlock,jdbcType=BIGINT}
+        and
+            f_vote_at >= #{beginTime,jdbcType=DATE} and f_vote_at &lt;= #{endTime,jdbcType=DATE}
+        order by
+            f_vote_at
+        limit
+            #{from}, #{size}
+    </select>
+
+</mapper>

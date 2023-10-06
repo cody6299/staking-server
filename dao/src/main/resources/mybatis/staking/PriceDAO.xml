@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.x.dao.db.staking.PriceDAO">
+    <resultMap id="BaseResultMap" type="com.x.dao.po.staking.PriceEntity">
+        <id column="f_id" jdbcType="BIGINT" property="id"/>
+        <result column="f_address" jdbcType="VARCHAR" property="address"/>
+        <result column="f_decimals" jdbcType="INTEGER" property="decimals"/>
+        <result column="f_token" jdbcType="VARCHAR" property="token"/>
+        <result column="f_price" jdbcType="DECIMAL" property="price"/>
+        <result column="f_create_at" jdbcType="TIMESTAMP" property="createAt"/>
+        <result column="f_update_at" jdbcType="TIMESTAMP" property="updateAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        f_id,
+        f_address,
+        f_decimals,
+        f_token,
+        f_price,
+        f_create_at,
+        f_update_at
+    </sql>
+
+    <insert id="save" keyProperty="entity.id" useGeneratedKeys="true" parameterType="com.x.dao.po.staking.PriceEntity">
+        insert into t_price
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.id != null">f_id,</if>
+                <if test="entity.address != null">f_address,</if>
+                <if test="entity.decimals != null">fdecimals,</if>
+                <if test="entity.token != null">f_token,</if>
+                <if test="entity.price != null">f_price,</if>
+                <if test="entity.createAt != null">f_create_at,</if>
+                <if test="entity.updateAt != null">f_update_at,</if>
+            </trim>
+        values
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.id != null">#{entity.id,jdbcType=BIGINT},</if>
+                <if test="entity.address != null">#{entity.address,jdbcType=VARCHAR},</if>
+                <if test="entity.decimals != null">#{entity.decimals,jdbcType=INTEGER},</if>
+                <if test="entity.token != null">#{entity.token,jdbcType=VARCHAR},</if>
+                <if test="entity.price != null">#{entity.price,jdbcType=DECIMAL},</if>
+                <if test="entity.createAt != null">#{entity.createAt,jdbcType=TIMESTAMP},</if>
+                <if test="entity.updateAt != null">#{entity.updateAt,jdbcType=TIMESTAMP},</if>
+            </trim>
+        on duplicate key update
+            f_price = values(f_price)
+    </insert>
+
+    <insert id="saveBulk" parameterType="com.x.dao.po.staking.PriceEntity">
+        insert into t_price(
+            f_id,
+            f_address,
+            f_decimals,
+            f_token,
+            f_price
+        ) values
+        <foreach collection="entities" item="entity" separator=",">
+            (
+                #{entity.id,jdbcType=BIGINT},
+                #{entity.address,jdbcType=VARCHAR},
+                #{entity.decimals,jdbcType=INTEGER},
+                #{entity.token,jdbcType=VARCHAR},
+                #{entity.price,jdbcType=DECIMAL}
+            )
+        </foreach>
+        on duplicate key update
+            f_price = values(f_price)
+    </insert>
+
+    <select id="selectAll" resultMap="BaseResultMap">
+        select 
+            <include refid="Base_Column_List"/>
+        from
+            t_price
+    </select>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        select 
+            <include refid="Base_Column_List"/>
+        from
+            t_price
+        where
+            f_id = #{id,jdbcType=BIGINT}
+    </select>
+</mapper>

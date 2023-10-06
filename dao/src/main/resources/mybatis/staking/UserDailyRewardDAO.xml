@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.x.dao.db.staking.UserDailyRewardDAO">
+    <resultMap id="BaseResultMap" type="com.x.dao.po.staking.UserDailyRewardEntity">
+        <id column="f_id" jdbcType="BIGINT" property="id"/>
+        <result column="f_chain_id" jdbcType="BIGINT" property="chainId"/>
+        <result column="f_chain_address" jdbcType="VARCHAR" property="chainAddress"/>
+        <result column="f_date" jdbcType="DATE" property="date"/>
+        <result column="f_reward" jdbcType="DECIMAL" property="reward"/>
+        <result column="f_sended" jdbcType="DECIMAL" property="sended"/>
+        <result column="f_send_address" jdbcType="VARCHAR" property="sendAddress"/>
+        <result column="f_create_at" jdbcType="TIMESTAMP" property="createAt"/>
+        <result column="f_update_at" jdbcType="TIMESTAMP" property="updateAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        f_id,
+        f_chain_id,
+        f_chain_address,
+        f_date,
+        f_reward,
+        f_sended,
+        f_send_address,
+        f_create_at,
+        f_update_at
+    </sql>
+
+    <insert id="save" parameterType="com.x.dao.po.staking.UserDailyRewardEntity">
+        insert into t_user_daily_reward
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.chainId != null">f_chain_id,</if>
+                <if test="entity.chainAddress != null">f_chain_address,</if>
+                <if test="entity.date != null">f_date,</if>
+                <if test="entity.reward != null">f_reward,</if>
+                <if test="entity.sended != null">f_sended,</if>
+                <if test="entity.sendAddress != null">f_send_address,</if>
+                <if test="entity.createAt != null">f_create_at,</if>
+                <if test="entity.updateAt != null">f_update_at,</if>
+            </trim>
+        values
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.chainId != null">#{entity.chainId,jdbcType=BIGINT},</if>
+                <if test="entity.chainAddress != null">#{entity.chainAddress,jdbcType=VARCHAR},</if>
+                <if test="entity.date != null">#{entity.date,jdbcType=DATE},</if>
+                <if test="entity.reward != null">#{entity.reward,jdbcType=DECIMAL},</if>
+                <if test="entity.sended != null">#{entity.sended,jdbcType=DECIMAL},</if>
+                <if test="entity.snedAddress != null">#{entity.sendAddress,jdbcType=VARCHAR},</if>
+                <if test="entity.createAt != null">#{entity.createAt,jdbcType=TIMESTAMP},</if>
+                <if test="entity.updateAt != null">#{entity.updateAt,jdbcType=TIMESTAMP},</if>
+            </trim>
+    </insert>
+
+    <insert id="saveBulk" parameterType="com.x.dao.po.staking.UserDailyRewardEntity">
+        insert into t_user_daily_reward(
+            f_chain_id,
+            f_chain_address,
+            f_date,
+            f_reward,
+            f_sended,
+            f_send_address
+        ) values
+        <foreach collection="entities" item="entity" separator=",">
+            (
+                #{entity.chainId,jdbcType=BIGINT},
+                #{entity.chainAddress,jdbcType=VARCHAR},
+                #{entity.date,jdbcType=DATE},
+                #{entity.reward,jdbcType=DECIMAL},
+                #{entity.sended,jdbcType=DECIMAL},
+                #{entity.sendAddress,jdbcType=VARCHAR}
+            )
+        </foreach>
+        on duplicate key update
+            f_reward = f_reward + values(f_reward);
+    </insert>
+
+    <insert id="updateSended" parameterType="com.x.dao.po.staking.UserDailyRewardEntity">
+        insert into t_user_daily_reward(
+            f_chain_id,
+            f_chain_address,
+            f_date,
+            f_reward,
+            f_sended,
+            f_send_address
+        ) values
+        <foreach collection="entities" item="entity" separator=",">
+            (
+                #{entity.chainId,jdbcType=BIGINT},
+                #{entity.chainAddress,jdbcType=VARCHAR},
+                #{entity.date,jdbcType=DATE},
+                #{entity.reward,jdbcType=DECIMAL},
+                #{entity.sended,jdbcType=DECIMAL},
+                #{entity.sendAddress,jdbcType=VARCHAR}
+            )
+        </foreach>
+        on duplicate key update
+            f_sended = values(f_sended)
+    </insert>
+
+    <select id="selectUnsended" resultMap="BaseResultMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            t_user_daily_reward
+        where
+            f_sended &lt;= f_reward
+        order by
+            f_id
+        limit
+            #{from},#{size}
+    </select>
+
+    <select id="selectTotalSendedByChanAndUserLessDate" resultType="java.math.BigDecimal">
+        select
+            sum(f_sended)
+        from
+            t_user_daily_reward
+        where
+            f_chain_id = #{chainId,jdbcType=BIGINT}
+        and
+            f_chain_address = #{chainAddress,jdbcType=VARCHAR}
+        and
+            f_date &lt;= #{date,jdbcType=DATE}
+    </select>
+
+</mapper>

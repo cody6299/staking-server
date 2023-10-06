@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.x.dao.db.staking.MerkleTreeDAO">
+    <resultMap id="BaseResultMap" type="com.x.dao.po.staking.MerkleTreeEntity">
+        <result column="f_date" jdbcType="DATE" property="date"/>
+        <result column="f_hash" jdbcType="VARCHAR" property="hash"/>
+        <result column="f_brother_hash" jdbcType="VARCHAR" property="brotherHash"/>
+        <result column="f_parent_hash" jdbcType="VARCHAR" property="parentHash"/>
+        <result column="f_create_at" jdbcType="TIMESTAMP" property="createAt"/>
+        <result column="f_update_at" jdbcType="TIMESTAMP" property="updateAt"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        f_date,
+        f_hash,
+        f_brother_hash,
+        f_parent_hash,
+        f_create_at,
+        f_update_at
+    </sql>
+
+    <insert id="save" parameterType="com.x.dao.po.staking.MerkleTreeEntity">
+        insert into t_merkle_tree
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.date != null">f_date,</if>
+                <if test="entity.hash != null">f_hash,</if>
+                <if test="entity.brotherHash != null">f_brother_hash,</if>
+                <if test="entity.parentHash != null">f_parent_hash,</if>
+                <if test="entity.createAt != null">f_create_at,</if>
+                <if test="entity.updateAt != null">f_update_at,</if>
+            </trim>
+        values
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="entity.date != null">#{entity.date,jdbcType=DATE},</if>
+                <if test="entity.hash != null">#{entity.hash,jdbcType=VARCHAR},</if>
+                <if test="entity.brotherHash != null">#{entity.brotherHash,jdbcType=VARCHAR},</if>
+                <if test="entity.parentHash != null">#{entity.parentHash,jdbcType=VARCHAR},</if>
+                <if test="entity.createAt != null">#{entity.createAt,jdbcType=TIMESTAMP},</if>
+                <if test="entity.updateAt != null">#{entity.updateAt,jdbcType=TIMESTAMP},</if>
+            </trim>
+        on duplicate key update
+            f_brother_hash = values(f_brother_hash),
+            f_parent_hash = values(f_parent_hash)
+    </insert>
+
+    <insert id="saveBulk" parameterType="com.x.dao.po.staking.MerkleTreeEntity">
+        insert into t_merkle_tree(
+            f_date,
+            f_hash,
+            f_brother_hash,
+            f_parent_hash
+        ) values
+        <foreach collection="entities" item="entity" separator=",">
+            (
+                #{entity.date,jdbcType=BIGINT},
+                #{entity.hash,jdbcType=VARCHAR},
+                #{entity.brotherHash,jdbcType=VARCHAR},
+                #{entity.parentHash,jdbcType=VARCHAR}
+            )
+        </foreach>
+        on duplicate key update
+            f_brother_hash = values(f_brother_hash),
+            f_parent_hash = values(f_parent_hash)
+    </insert>
+
+    <select id="selectByDateAndHash" resultMap="BaseResultMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            t_merkle_tree
+        where
+            f_date = #{date,jdbcType=DATE}
+        and
+            f_hash = #{hash,jdbcType=VARCHAR}
+    </select>
+
+</mapper>
